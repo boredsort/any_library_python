@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 class Order:
     items = []
     quantities = []
@@ -15,13 +17,20 @@ class Order:
             total += self.quantities[i] * self.prices[i]
         return total
 
-class PaymentProcessor:
-    def pay_debit(self, order, security_code):
+class PaymentProcessor(ABC):
+
+    @abstractmethod
+    def pay(self, order, security_code):
+        pass
+
+class DebitPaymentProcessor(PaymentProcessor):
+    def pay(self, order, security_code):
         print("Processing debit payment type") 
         print(f"Verifying security code: {security_code}")
         order.status = "paid"
 
-    def pay_credit(self, order, security_code):
+class CreditPaymentProcessor(PaymentProcessor):
+    def pay(self, order, security_code):
         print("Processing credit payment type")
         print(f"Verifying security code: {security_code}")
         order.status = "paid"
@@ -33,5 +42,5 @@ order.add_item("USB cable", 2, 5)
 
 print(order.total_price())
 
-payment_processor = PaymentProcessor()
-payment_processor.pay_debit(order, "7011111")
+payment_processor = DebitPaymentProcessor()
+payment_processor.pay(order, "7011111")
