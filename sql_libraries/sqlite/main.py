@@ -165,20 +165,40 @@ connection = create_connection(path)
 # column_names = [description[0] for description in cursor.description]
 # print(column_names)
 
-select_post_likes = """
-SELECT
-    description as Post,
-    COUNT(likes.id) as Likes
-FROM
-    likes,
+# select_post_likes = """
+# SELECT
+#     description as Post,
+#     COUNT(likes.id) as Likes
+# FROM
+#     likes,
+#     posts
+# WHERE
+#     posts.id = likes.post_id
+# GROUP BY
+#     likes.post_id
+# """
+
+# post_likes = execute_read_query(connection, select_post_likes)
+
+# for post_like in post_likes:
+#     print(post_like)
+
+
+select_post_description = "SELECT description FROM posts WHERE id = 2"
+
+post_description = execute_read_query(connection, select_post_description)
+
+for description in post_description:
+    print(description)
+
+
+update_post_description = """
+UPDATE 
     posts
+SET
+    description = "The weather has become please now"
 WHERE
-    posts.id = likes.post_id
-GROUP BY
-    likes.post_id
+    id = 2
 """
 
-post_likes = execute_read_query(connection, select_post_likes)
-
-for post_like in post_likes:
-    print(post_like)
+execute_query(connection, update_post_description)
