@@ -2,8 +2,26 @@ import os
 import sqlite3
 from sqlite3 import Error
 
-from constants import CREATE_POSTS_TABLE, CREATE_COMMMENTS_TABLE, CREATE_LIKES_TABLE, CREATE_USERS_TABLE
+from constants import (
+    CREATE_POSTS_TABLE, 
+    CREATE_COMMMENTS_TABLE, 
+    CREATE_LIKES_TABLE, 
+    CREATE_USERS_TABLE,
+    CREATE_USERS,
+    CREATE_POSTS,
+    CREATE_COMMENTS,
+    CREATE_LIKES,
+    SELECT_USERS,
+    SELECT_POSTS,
+    SELECT_USERS_POSTS,
+    SELECT_POSTS_COMMENTS_USERS,
+    SELECT_POST_LIKES,
+    SELECT_POST_DESCRIPTION,
+    UPDATE_POST_DESCRIPTION,
+    DELETE_COMMENT,
+    SELECT_COMMENT
 
+)
 def create_connection(path):
     connection = None
     try:
@@ -44,89 +62,35 @@ execute_query(connection, CREATE_LIKES_TABLE)
 # COMMENTS
 execute_query(connection, CREATE_COMMMENTS_TABLE)
 
-create_users = """
-INSERT INTO
-    users (name, age, gender, nationality)
-VALUES 
-    ('James', 25, 'male', 'USA'),
-    ('Leila', 32, 'female', 'France'),
-    ('Brigitte', 35, 'female', 'England'),
-    ('Mike', 40, 'male', 'Denmark'),
-    ('Elizabeth', 21, 'female', 'Canada');
-"""
 
-execute_query(connection, create_users)
+execute_query(connection, CREATE_USERS)
 
-create_posts = """
-INSERT INTO 
-    posts (title, description, user_id)
-VALUES
-    ('Happy', 'I am feeling very happy today', 1),
-    ('Hot Weather', 'The weather is very hot today', 2),
-    ('Help', 'I need some help with my work', 2),
-    ('Great News', 'I am getting married', 1),
-    ('Interesting Game', 'It was a fantastic game of tennis', 5),
-    ('Party', 'Anyone up for a late-night party today?', 3);
-"""
-
-execute_query(connection, create_posts)
+execute_query(connection, CREATE_POSTS)
 
 
-create_comments = """
-INSERT INTO
-    comments (text, user_id, post_id)
-VALUES 
-    ('Count me in', 1, 6),
-    ('What sort of help?', 5, 3),
-    ('Congrats buddy', 2, 4),
-    ('I was rooting for Nadal though', 4, 5),
-    ('Help with your thesis?', 2, 3),
-    ('Many congratulations', 5, 4);
-"""
 
-create_likes = """
-INSERT INTO
-    likes (user_id, post_id)
-VALUES 
-    (1, 6),
-    (2, 3),
-    (1, 5),
-    (5, 4),
-    (2, 4),
-    (4, 2),
-    (3, 6);
-"""
 
-execute_query(connection, create_comments)
-execute_query(connection, create_likes)
+execute_query(connection, CREATE_COMMENTS)
+execute_query(connection, CREATE_LIKES)
 
 print('--------------------Users-----------------------')
 
-select_users = "SELECT * FROM users"
-users = execute_read_query(connection, select_users)
+
+users = execute_read_query(connection, SELECT_USERS)
 
 for user in users:
     print(user)
 
 print('--------------------Posts------------------------')
 
-select_posts = 'SELECT * FROM posts'
-posts = execute_read_query(connection, select_posts)
+
+posts = execute_read_query(connection, SELECT_POSTS)
 
 for post in posts:
     print(post)
 
-select_users_posts = """
-SELECT
-    users.id,
-    users.name,
-    posts.description
-FROM
-    posts
-INNER JOIN users ON users.id = posts.user_id
-"""
 
-users_posts = execute_read_query(connection, select_users_posts)
+users_posts = execute_read_query(connection, SELECT_USERS_POSTS)
 
 print('--------------------user-posts----------------------')
 
@@ -134,20 +98,8 @@ for users_post in users_posts:
     print(users_post)
 
 
-select_posts_comments_users = """
-SELECT
-    posts.description as post,
-    text as comment,
-    name
-FROM
-    posts
-INNER JOIN comments ON posts.id = comments.post_id
-INNER JOIN users ON users.id = comments.user_id
-
-"""
-
 posts_comments_users = execute_read_query(
-    connection, select_posts_comments_users
+    connection, SELECT_POSTS_COMMENTS_USERS
 )
 
 print('------------------posts-comments-users--------------------')
@@ -159,54 +111,31 @@ for post_comments_user in posts_comments_users:
 # how to get the column names of a table
 # get columna names from the attribute description of the cursor
 cursor = connection.cursor()
-cursor.execute(select_posts_comments_users)
+cursor.execute(SELECT_POSTS_COMMENTS_USERS)
 cursor.fetchall()
 
 column_names = [description[0] for description in cursor.description]
 print(column_names)
 
-select_post_likes = """
-SELECT
-    description as Post,
-    COUNT(likes.id) as Likes
-FROM
-    likes,
-    posts
-WHERE
-    posts.id = likes.post_id
-GROUP BY
-    likes.post_id
-"""
 
-post_likes = execute_read_query(connection, select_post_likes)
+
+post_likes = execute_read_query(connection, SELECT_POST_LIKES)
 
 for post_like in post_likes:
     print(post_like)
 
 
-select_post_description = "SELECT description FROM posts WHERE id = 5"
 
-post_description = execute_read_query(connection, select_post_description)
+post_description = execute_read_query(connection, SELECT_POST_DESCRIPTION)
 
 for description in post_description:
     print(description)
 
 
-update_post_description = """
-UPDATE 
-    posts
-SET
-    description = "The weather has become please now"
-WHERE
-    id = 2
-"""
-
-execute_query(connection, update_post_description)
+execute_query(connection, UPDATE_POST_DESCRIPTION)
 
 
-delete_comment = "DELETE FROM comments WHERE id = 5"
-execute_query(connection, delete_comment)
+execute_query(connection, DELETE_COMMENT)
 
 
-select_comment = "SELECT * FROM comments WHERE id = 5"
-execute_read_query(connection, select_comment)
+execute_read_query(connection, SELECT_COMMENT)
